@@ -1,5 +1,6 @@
-# llm_interviewer
-LLM chatbot to interview users and assess claimed expertise
+# AI Interviewer
+
+A production-ready AI-powered technical interview system built with LangGraph and Streamlit.
 
 ```
 llm-interviewer/
@@ -33,3 +34,43 @@ llm-interviewer/
 └── examples/             # Example usage
     └── basic_interview.py
 ```
+
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   make setup
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your OpenAI API key
+   ```
+
+4. Run the application:
+   ```bash
+   streamlit run streamlit_app.py
+   ```
+
+## Deployment Options
+
+### Local Development
+```bash
+streamlit run streamlit_app.py
+```
+
+### Docker Deployment
+A Dockerfile has been  provided for containerised deployment.
+
+### Streamlit Cloud
+1. Push to GitHub
+2. Connect repository to Streamlit Cloud
+3. Add environment variables in Streamlit Cloud settings
+4. Deploy
+
+### Other Options
+- **Heroku**: Add `Procfile` with `web: streamlit run streamlit_app.py --server.port=$PORT`
+- **AWS/GCP/Azure**: Use container services with the Docker image

@@ -1,0 +1,56 @@
+{
+  "domains": [
+    {
+      "name": "LLM Architecture & Theory",
+      "subdomains": [
+        {
+          "name": "Model Architecture",
+          "core_skills": [
+            {
+              "name": "Transformer Architecture",
+              "knowledge_areas": [
+                "Attention Mechanisms",
+                "Tokenization Methods"
+              ],
+              "practical_applications": [
+                "Model Selection",
+                "Architecture Optimization"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Training Methods",
+          "core_skills": [
+            {
+              "name": "Fine-tuning Techniques",
+              "knowledge_areas": ["LoRA", "RLHF"],
+              "practical_applications": [
+                "Domain Adaptation",
+                "Model Customization"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LLM Development",
+      "subdomains": [
+        {
+          "name": "Prompt Engineering",
+          "core_skills": [
+            {
+              "name": "Advanced Prompting",
+              "knowledge_areas": ["Chain-of-thought", "Few-shot Learning"],
+              "practical_applications": [
+                "Prompt Template Creation",
+                "Response Optimization"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

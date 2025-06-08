@@ -9,15 +9,19 @@ packages = [{ include = "llm_interviewer", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "3.12"
-langchain = "^0.1.0"        # For building LLM applications and conversation flows
-langchain-openai = "^0.0.5" # OpenAI integration for LangChain
-langsmith = "^0.1.0"        # For prompt versioning and experiment tracking
-openai = "^1.12.0"          # For GPT model interactions
-pydantic = "^2.6.0"         # For data validation and settings management
-python-dotenv = "^1.0.0"    # For environment variable management
+langchain = "0.3.25"           # For building LLM applications and conversation flows
+langchain-openai = "0.3.21"    # OpenAI integration for LangChain
+langchain-anthropic = "0.3.15" # Anthropic integration for LangChain
+langsmith = "0.3.45"           # For prompt versioning and experiment tracking
+langgraph = "0.3.10"           # For building LLM applications and conversation flows
+openai = "1.68.2"              # For GPT model interactions
+pydantic = "^2.6.0"            # For data validation and settings management
+pydantic-settings = "^2.2.0"   # For settings management with pydantic
+python-dotenv = "^1.0.0"       # For environment variable management
 # chromadb = "^0.4.22"        # For vector storage and similarity search
-numpy = "^1.26.0" # For numerical operations
-pandas = "^2.2.0" # For data manipulation and analysis
+numpy = "^1.26.0"     # For numerical operations
+pandas = "^2.2.0"     # For data manipulation and analysis
+streamlit = "^1.28.0" # For building web applications
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"     # For testing
@@ -26,6 +30,8 @@ isort = "^5.13.0"     # For import sorting
 flake8 = "^7.0.0"     # For linting
 mypy = "^1.8.0"       # For type checking
 pre-commit = "^3.6.0" # For git hooks
+ipython = "^8.17.0"   # For interactive shell
+jupyter = "^1.1.1"    # For Jupyter notebooks
 
 [build-system]
 requires = ["poetry-core"]

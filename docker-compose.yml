@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  llm-interviewer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: llm-interviewer-dev
+    ports:
+      - "8501:8501"
+    environment:
+      - ENVIRONMENT=development
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - MODEL_PROVIDER=${MODEL_PROVIDER:-openai}
+      - MODEL_NAME=${MODEL_NAME:-gpt-4}
+    volumes:
+      # Mount source for development (optional - for hot reload)
+      - ./src:/app/src:ro
+      - ./streamlit_app.py:/app/streamlit_app.py:ro
+    restart: unless-stopped
+    profiles:
+      - dev
+
+networks:
+  default:
+    name: llm-interviewer-network

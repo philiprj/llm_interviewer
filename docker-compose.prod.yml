@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  llm-interviewer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: llm-interviewer-prod
+    ports:
+      - "8501:8501"
+    environment:
+      - ENVIRONMENT=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - MODEL_PROVIDER=${MODEL_PROVIDER:-openai}
+      - MODEL_NAME=${MODEL_NAME:-gpt-4}
+      - TEMPERATURE=${TEMPERATURE:-0.05}
+      - MAX_TOPICS=${MAX_TOPICS:-2}
+      - MAX_QUESTIONS_PER_TOPIC=${MAX_QUESTIONS_PER_TOPIC:-3}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+networks:
+  default:
+    name: llm-interviewer-network
