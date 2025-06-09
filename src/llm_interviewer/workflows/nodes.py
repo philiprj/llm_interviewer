@@ -1,26 +1,71 @@
 import json
 from typing import Literal
 
+from langchain.globals import set_llm_cache
+from langchain_community.cache import InMemoryCache
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.tracers import LangChainTracer
+from langsmith import Client
 
 from ..config.settings import settings
 from ..models.interview_state import InterviewState
 from ..models.pydantic_models import Question, ResponseEvaluation, TopicSelection
 
-# Initialize LLMs
-if settings.model_provider == "openai":
-    from langchain_openai import ChatOpenAI
+# Initialize LangSmith client
+langsmith_client = Client() if settings.langchain_tracing_v2 else None
 
-    llm = ChatOpenAI(temperature=settings.temperature, model=settings.model_name)
-elif settings.model_provider == "anthropic":
-    from langchain_anthropic import ChatAnthropic
-
-    llm = ChatAnthropic(temperature=settings.temperature, model=settings.model_name)
+# Enable caching if configured
+if settings.enable_llm_caching:
+    set_llm_cache(InMemoryCache())
 
 
-topic_selector_llm = llm.with_structured_output(TopicSelection)
-question_generator_llm = llm.with_structured_output(Question)
-evaluator_llm = llm.with_structured_output(ResponseEvaluation)
+# Enhanced LLM initialization with tracing
+def create_llm_with_tracing(run_name: str, tags: list | None = None):
+    """Create LLM instance with proper tracing and callbacks"""
+    callbacks = []
+
+    if settings.langchain_tracing_v2:
+        tracer = LangChainTracer(
+            project_name=settings.langchain_project, tags=tags or []
+        )
+        callbacks.append(tracer)
+
+    if settings.model_provider == "openai":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            temperature=settings.temperature,
+            model=settings.model_name,
+            request_timeout=settings.llm_timeout,
+            max_retries=settings.llm_max_retries,
+            callbacks=callbacks,
+            tags=tags,
+        )
+    elif settings.model_provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(
+            temperature=settings.temperature,
+            model=settings.model_name,
+            timeout=settings.llm_timeout,
+            max_retries=settings.llm_max_retries,
+            callbacks=callbacks,
+            tags=tags,
+        )
+
+
+# Create specialized LLMs with tags
+topic_selector_llm = create_llm_with_tracing(
+    "topic_selection", tags=["topic_selection", "interview_flow"]
+).with_structured_output(TopicSelection)
+
+question_generator_llm = create_llm_with_tracing(
+    "question_generation", tags=["question_generation", "interview_flow"]
+).with_structured_output(Question)
+
+evaluator_llm = create_llm_with_tracing(
+    "response_evaluation", tags=["evaluation", "interview_flow"]
+).with_structured_output(ResponseEvaluation)
 
 
 def analyze_taxonomy_and_select_topic(state: InterviewState) -> InterviewState:
@@ -33,7 +78,7 @@ def analyze_taxonomy_and_select_topic(state: InterviewState) -> InterviewState:
     2. The candidate's demonstrated skill level so far
     3. Logical progression of topics
     4. Areas that need deeper exploration
-    
+
     Select a domain, subdomain, and specific skill that would provide the most valuable assessment data."""
 
     taxonomy_str = json.dumps(state["taxonomy"], indent=2)
@@ -45,13 +90,13 @@ def analyze_taxonomy_and_select_topic(state: InterviewState) -> InterviewState:
             content=f"""
         Skills Taxonomy:
         {taxonomy_str}
-        
+
         Topics Already Covered:
         {topics_covered_str}
-        
+
         Total Questions Asked: {state["total_questions_asked"]}
         Topics Completed: {state["topics_completed"]}
-        
+
         Select the next topic to explore."""
         ),
     ]
@@ -103,12 +148,12 @@ def generate_question(state: InterviewState) -> InterviewState:
         - Domain: {state["current_domain"]}
         - Subdomain: {state["current_subdomain"]}
         - Skill: {state["current_skill"]}
-        
+
         Questions asked on this topic: {state["questions_asked_current_topic"]}
-        
+
         Recent conversation context:
         {conversation_context}
-        
+
         Generate an appropriate interview question."""
         ),
     ]
@@ -138,14 +183,14 @@ def analyze_response(state: InterviewState) -> InterviewState:
     - Subdomain: {state["current_subdomain"]}
     - Skill: {state["current_skill"]}
     - Question Number on this topic: {state["questions_asked_current_topic"]}
-    
+
     Evaluate the response for:
     1. Technical accuracy and depth
     2. Practical understanding
     3. Communication clarity
     4. Areas of strength and improvement
     5. Whether additional questions on this topic would be valuable
-    
+
     Provide a quality score between 0-1 and determine if we should continue with this topic or move on."""
 
     ai_messages = [
@@ -162,9 +207,9 @@ def analyze_response(state: InterviewState) -> InterviewState:
         HumanMessage(
             content=f"""
         Question Asked: {last_question}
-        
+
         Candidate's Response: {user_response}
-        
+
         Please evaluate this response."""
         ),
     ]
@@ -269,12 +314,12 @@ def end_interview(state: InterviewState) -> InterviewState:
 
     summary = f"""
     Interview Complete!
-    
+
     Summary:
     - Topics Covered: {len(state["topics_covered"])}
     - Total Questions Asked: {state["total_questions_asked"]}
     - Average Performance Score: {avg_score:.2f}/1.0
-    
+
     Performance by Topic:
     """
 

@@ -25,6 +25,7 @@ streamlit = "^1.28.0" # For building web applications
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"     # For testing
+pytest-cov = "^4.0.0" # For test coverage reporting
 black = "^24.1.0"     # For code formatting
 isort = "^5.13.0"     # For import sorting
 flake8 = "^7.0.0"     # For linting
@@ -48,3 +49,28 @@ extend-ignore = ["E203", "W503"]
 [tool.isort]
 profile = "black"
 multi_line_output = 3
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+    "--disable-warnings",
+    "--cov=src/llm_interviewer",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
