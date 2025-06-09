@@ -100,9 +100,12 @@ with st.sidebar:
 
         # Current topic
         if state.get("current_domain"):
-            st.info(
-                f"**Current Topic:**\n{state['current_domain']} - {state['current_subdomain']}"
+            current_topic = (
+                f"**Current Topic:**\n"
+                f"{state['current_domain']} - "
+                f"{state['current_subdomain']}"
             )
+            st.info(current_topic)
 
         # Performance so far
         if state.get("overall_performance"):
@@ -122,21 +125,24 @@ st.markdown("*Test your knowledge with an AI-powered technical interview*")
 if not st.session_state.interview_started:
     # Welcome screen
     st.markdown("## Welcome!")
-    st.markdown("""
-    This AI interviewer will assess your technical knowledge through a structured conversation.
-    
+    st.markdown(
+        """
+    This AI interviewer will assess your technical knowledge through a
+    structured conversation.
+
     **How it works:**
     1. The AI will ask you technical questions based on a predefined taxonomy
     2. You'll provide detailed responses
     3. Your answers will be evaluated and the AI will adapt accordingly
     4. The interview covers up to 2 main topics with up to 3 questions each
-    
+
     **Topics covered:**
     - LLM Architecture & Theory
     - LLM Development & Applications
-    
+
     Click "Start Interview" in the sidebar to begin!
-    """)
+    """
+    )
 
     # Show taxonomy
     with st.expander("📋 View Interview Taxonomy"):
@@ -237,9 +243,11 @@ else:
             st.markdown("### 📈 Detailed Performance")
 
             for i, eval_data in enumerate(state["overall_performance"], 1):
-                with st.expander(
-                    f"Question {i}: {eval_data['topic']} (Score: {eval_data['quality_score']:.2f}/1.0)"
-                ):
+                expander_title = (
+                    f"Question {i}: {eval_data['topic']} "
+                    f"(Score: {eval_data['quality_score']:.2f}/1.0)"
+                )
+                with st.expander(expander_title):
                     col1, col2 = st.columns(2)
 
                     with col1:
@@ -252,9 +260,10 @@ else:
                     with col2:
                         st.markdown("**Evaluation:**")
                         st.write(f"**Score:** {eval_data['quality_score']:.2f}/1.0")
-                        st.write(
-                            f"**Demonstrates Knowledge:** {'✅' if eval_data['demonstrates_knowledge'] else '❌'}"
+                        knowledge_status = (
+                            "✅" if eval_data["demonstrates_knowledge"] else "❌"
                         )
+                        st.write(f"**Demonstrates Knowledge:** {knowledge_status}")
 
                         if eval_data["areas_of_strength"]:
                             st.markdown("**Strengths:**")
@@ -276,8 +285,7 @@ if st.session_state.interview_started and st.session_state.conversation_history:
             role_emoji = "🤖" if entry["role"] == "interviewer" else "👤"
             role_name = "Interviewer" if entry["role"] == "interviewer" else "You"
 
-            st.markdown(
-                f"**{role_emoji} {role_name}** *({entry['timestamp'].strftime('%H:%M:%S')})*"
-            )
+            timestamp_str = entry["timestamp"].strftime("%H:%M:%S")
+            st.markdown(f"**{role_emoji} {role_name}** *({timestamp_str})*")
             st.markdown(entry["content"])
             st.markdown("---")

@@ -1,0 +1,37 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# Basic Configuration
+project_name = "llm-interviewer"
+environment  = "production"
+aws_region   = "us-east-1"
+
+# Network Configuration
+vpc_cidr             = "10.0.0.0/16"
+public_subnets_cidr  = ["10.0.1.0/24", "10.0.2.0/24"]
+
+# ECS Configuration
+task_cpu     = 1024
+task_memory  = 2048
+desired_count = 2
+
+# Application Configuration
+openai_api_key             = "your-openai-api-key-here"
+model_provider             = "openai"
+model_name                 = "gpt-4"
+temperature                = 0.05
+max_topics                 = 2
+max_questions_per_topic    = 3
+
+# Auto Scaling
+enable_autoscaling = true
+min_capacity       = 1
+max_capacity       = 10
+
+# Logging
+log_retention_days = 30
+
+# Additional Tags
+additional_tags = {
+  Owner      = "your-name"
+  CostCenter = "engineering"
+}

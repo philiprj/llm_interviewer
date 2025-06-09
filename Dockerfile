@@ -25,6 +25,9 @@ COPY --chown=appuser:appuser . .
 # Remove any .env files that might have been copied
 RUN rm -f .env* || true
 
+# Install the local package in development mode
+RUN pip install -e .
+
 # Switch to non-root user
 USER appuser
 
