@@ -47,6 +47,12 @@ help:
 	@echo "  make docker-build   - Build Docker image"
 	@echo "  make docker-run     - Run Docker container"
 	@echo ""
+	@echo "🚀 Deployment:"
+	@echo "  make deploy-prod-east - Deploy to production (us-east-1)"
+	@echo "  make deploy-terraform - Interactive Terraform deployment"
+	@echo "  make destroy-prod-east - Destroy production infrastructure (us-east-1) - Not implemented"
+	@echo "  make destroy-terraform - Interactive Terraform destroy"
+	@echo ""
 	@echo "🧽 Cleanup:"
 	@echo "  make clean          - Clean cache files"
 	@echo "  make clean-all      - Deep clean including venv"
@@ -231,4 +237,37 @@ docker-run:
 	@echo "🐳 Running Docker container..."
 	docker run -p $(STREAMLIT_PORT):$(STREAMLIT_PORT) --env-file .env $(PACKAGE_NAME)
 
-.PHONY: help install install-dev update format lint type-check test test-cov test-watch clean clean-all setup pre-commit dev-setup venv-setup venv-info export-reqs check-updates run add-dep rm-dep streamlit streamlit-dev streamlit-public notebook qa lock sync docker-build docker-run
+deploy-prod-east:
+	@echo "🚀 Deploying to production in us-east-1..."
+	./scripts/deploy-terraform.sh production us-east-1
+
+deploy-terraform:
+	@echo "🚀 Running Terraform deployment..."
+	@read -p "Enter environment (staging/production): " env; \
+	read -p "Enter region (us-east-1/us-west-2/etc): " region; \
+	./scripts/deploy-terraform.sh $$env $$region
+
+# Destroy infrastructure
+destroy-prod-east:
+	@echo "💥 Destroying production infrastructure in us-east-1..."
+	@echo "⚠️  WARNING: This will destroy all infrastructure!"
+	@read -p "Are you sure you want to destroy production? Type 'yes' to confirm: " confirm; \
+	if [ "$$confirm" = "yes" ]; then \
+		cd terraform && terraform destroy -var="environment=production" -var="aws_region=us-east-1"; \
+	else \
+		echo "❌ Destroy cancelled."; \
+	fi
+
+destroy-terraform:
+	@echo "💥 Interactive Terraform destroy..."
+	@echo "⚠️  WARNING: This will destroy all infrastructure!"
+	@read -p "Enter environment (staging/production): " env; \
+	read -p "Enter region (us-east-1/us-west-2/etc): " region; \
+	read -p "Are you sure you want to destroy $$env infrastructure? Type 'yes' to confirm: " confirm; \
+	if [ "$$confirm" = "yes" ]; then \
+		cd terraform && terraform destroy -var="environment=$$env" -var="aws_region=$$region"; \
+	else \
+		echo "❌ Destroy cancelled."; \
+	fi
+
+.PHONY: help install install-dev update format lint type-check test test-cov test-watch clean clean-all setup pre-commit dev-setup venv-setup venv-info export-reqs check-updates run add-dep rm-dep streamlit streamlit-dev streamlit-public notebook qa lock sync docker-build docker-run deploy-prod-east deploy-terraform destroy-prod-east destroy-terraform
